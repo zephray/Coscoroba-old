@@ -7,8 +7,5 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. 
  */
 #pragma once
+// Shader common definition
 
-#include <stdio.h>
-#include <cstddef>
-
-#define VERSION "0.1"

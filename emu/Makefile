@@ -1,4 +1,4 @@
-CC		:= gcc
+CXX		:= g++
 C_FLAGS := -Wall -Wextra
 
 BINDIR	:= bin
@@ -15,10 +15,10 @@ endif
 INCLUDE	:= -Iinclude
 
 SRC := \
-	src/main.c \
-	src/frontend.c
+	src/main.cpp \
+	src/frontend.cpp
 
-OBJ := $(addprefix $(OBJDIR)/, $(SRC:.c=.o))
+OBJ := $(addprefix $(OBJDIR)/, $(SRC:.cpp=.o))
 
 all: $(BINDIR)/$(EXECUTABLE)
 
@@ -29,9 +29,9 @@ clean:
 run: all
 	./$(BINDIR)/$(EXECUTABLE)
 
-$(OBJDIR)/%.o: %.c
+$(OBJDIR)/%.o: %.cpp
 	mkdir -p $(dir $@)
-	$(CC) $(C_FLAGS) $(INCLUDE) -c $< -o $@
+	$(CXX) $(C_FLAGS) $(INCLUDE) -c $< -o $@
 
 $(BINDIR)/$(EXECUTABLE): $(OBJ)
-	$(CC) $(C_FLAGS) $(INCLUDE) $^ -o $@ $(LIBRARIES)
+	$(CXX) $(C_FLAGS) $(INCLUDE) $^ -o $@ $(LIBRARIES)

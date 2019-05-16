@@ -6,9 +6,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. 
  */
-#pragma once
+#include "main.h"
+#include "frontend.h"
 
-#include <stdio.h>
-#include <cstddef>
+int main(int argc, char *argv[]) {
+	printf("Coscoroba Emulator\nVersion %s\n", VERSION);
+	Frontend::Init();
 
-#define VERSION "0.1"
+	while (Frontend::PollEvent()) {
+		// ?
+	}
+
+	Frontend::Deinit();
+}

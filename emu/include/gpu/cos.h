@@ -7,8 +7,3 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. 
  */
 #pragma once
-
-#include <stdio.h>
-#include <cstddef>
-
-#define VERSION "0.1"
