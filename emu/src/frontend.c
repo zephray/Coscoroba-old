@@ -19,3 +19,23 @@ void frontend_init() {
         exit(1);
     }
 }
+
+bool frontend_pollevent() {
+    SDL_Event event;
+    bool result = true;
+    if (SDL_PollEvent(&event)) {
+        switch (event.type) {
+        case SDL_QUIT:
+            result = false;
+            break;
+        default:
+            break;
+        }
+    }
+    return result;
+}
+
+void frontend_deinit() {
+    free(screen);
+    SDL_Quit();
+}

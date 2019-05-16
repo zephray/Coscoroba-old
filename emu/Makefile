@@ -1,10 +1,8 @@
 CC		:= gcc
 C_FLAGS := -Wall -Wextra
 
-BIN		:= bin
-SRC		:= src
-INCLUDE	:= include
-LIB		:= lib
+BINDIR	:= bin
+OBJDIR	:= obj
 
 LIBRARIES	:= -lSDL
 
@@ -14,13 +12,26 @@ else
 EXECUTABLE	:= main
 endif
 
-all: $(BIN)/$(EXECUTABLE)
+INCLUDE	:= -Iinclude
+
+SRC := \
+	src/main.c \
+	src/frontend.c
+
+OBJ := $(addprefix $(OBJDIR)/, $(SRC:.c=.o))
+
+all: $(BINDIR)/$(EXECUTABLE)
 
 clean:
-	-$(RM) $(BIN)/$(EXECUTABLE)
+	rm $(BINDIR)/$(EXECUTABLE)
+	rm -rf $(OBJDIR)/
 
 run: all
-	./$(BIN)/$(EXECUTABLE)
+	./$(BINDIR)/$(EXECUTABLE)
 
-$(BIN)/$(EXECUTABLE): $(SRC)/*
-	$(CC) $(C_FLAGS) -I$(INCLUDE) -L$(LIB) $^ -o $@ $(LIBRARIES)
+$(OBJDIR)/%.o: %.c
+	mkdir -p $(dir $@)
+	$(CC) $(C_FLAGS) $(INCLUDE) -c $< -o $@
+
+$(BINDIR)/$(EXECUTABLE): $(OBJ)
+	$(CC) $(C_FLAGS) $(INCLUDE) $^ -o $@ $(LIBRARIES)
