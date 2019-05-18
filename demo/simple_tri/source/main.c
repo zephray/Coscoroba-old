@@ -26,13 +26,19 @@ typedef struct
 	GX_TRANSFER_IN_FORMAT(GX_TRANSFER_FMT_RGBA8) | GX_TRANSFER_OUT_FORMAT(GX_TRANSFER_FMT_RGB8) | \
 	GX_TRANSFER_SCALING(GX_TRANSFER_SCALE_NO))
 
-typedef struct { float x, y, z; } vertex;
+typedef struct {
+	float position[3];
+	float color[3];
+} vertex;
 
 static const vertex vertex_list[] =
 {
-	{ 200.0f, 200.0f, 0.5f },
-	{ 100.0f, 40.0f, 0.5f },
-	{ 300.0f, 40.0f, 0.5f },
+	{ {100.0f, 220.0f, 0.5f}, {1.0f, 0.0f, 0.0f} },
+	{ {100.0f, 20.0f, 0.5f }, {0.0f, 0.0f, 1.0f} },
+	{ {300.0f, 20.0f, 0.5f }, {0.0f, 1.0f, 1.0f} },
+	{ {100.0f, 220.0f, 0.5f}, {1.0f, 0.0f, 0.0f} },
+	{ {300.0f, 20.0f, 0.5f }, {0.0f, 1.0f, 1.0f} },
+	{ {300.0f, 220.0f, 0.5f}, {1.0f, 1.0f, 0.0f} },
 };
 
 #define vertex_list_count (sizeof(vertex_list)/sizeof(vertex_list[0]))
@@ -100,8 +106,10 @@ int main()
 	//if (pa < info->base_paddr) return -2;
 	GPU_BufCfg* bufCfg = &bufInfo.buffers[id];
 	bufCfg->offset = pa - bufInfo.base_paddr;
-	bufCfg->flags[0] = 0 & 0xFFFFFFFF;
-	bufCfg->flags[1] = (0 >> 32) | (sizeof(vertex) << 16) | (1 << 28);
+	//                 permutation
+	bufCfg->flags[0] = 0x10 & 0xFFFFFFFF;
+	//                 permutation (Hi)  stride              attrib count
+	bufCfg->flags[1] = (0x10 >> 32) | (sizeof(vertex) << 16) | (2 << 28);
 
 	cmdBuf = (u32*)linearAlloc(cmdBufSize);
 	GPUCMD_SetBuffer(cmdBuf, cmdBufSize, 0);
@@ -198,10 +206,14 @@ int main()
 	GPUCMD_AddWrite(GPUREG_GSH_MISC0, 0x00000000);
 	GPUCMD_AddWrite(GPUREG_GSH_MISC1, 0x00000000);
 	GPUCMD_AddWrite(GPUREG_GSH_INPUTBUFFER_CONFIG, 0xa0000000);
-	GPUCMD_AddWrite(GPUREG_ATTRIBBUFFERS_FORMAT_LOW, 0x0000000b);
-	GPUCMD_AddWrite(GPUREG_ATTRIBBUFFERS_FORMAT_HIGH, 0x1ffe0000);
+
+	// Attribute
+	GPUCMD_AddWrite(GPUREG_ATTRIBBUFFERS_FORMAT_LOW, 0x000000bb);
+	GPUCMD_AddWrite(GPUREG_ATTRIBBUFFERS_FORMAT_HIGH, 0x1ffc0000);
+	// Attribute count = 2
 	GPUCMD_AddMaskedWrite(GPUREG_VSH_INPUTBUFFER_CONFIG, 0xb, 0xa0000001);
 	GPUCMD_AddWrite(GPUREG_VSH_NUM_ATTR, 0x00000001);
+
 	GPUCMD_AddWrite(GPUREG_VSH_ATTRIBUTES_PERMUTATION_LOW, 0x00000010);
 	GPUCMD_AddWrite(GPUREG_VSH_ATTRIBUTES_PERMUTATION_HIGH, 0x00000000);
 	
@@ -297,7 +309,9 @@ int main()
 	GPUCMD_AddMaskedWrite(GPUREG_PRIMITIVE_CONFIG, 0x2, 0x00000001);
 	GPUCMD_AddWrite(GPUREG_RESTART_PRIMITIVE, 0x00000001);
 	GPUCMD_AddWrite(GPUREG_INDEXBUFFER_CONFIG, 0x80000000);
-	GPUCMD_AddWrite(GPUREG_NUMVERTICES, 0x00000003);
+
+	GPUCMD_AddWrite(GPUREG_NUMVERTICES, vertex_list_count);
+	
 	GPUCMD_AddWrite(GPUREG_VERTEX_OFFSET, 0x00000000);
 	GPUCMD_AddMaskedWrite(GPUREG_GEOSTAGE_CONFIG2, 0x1, 0x00000001);
 	GPUCMD_AddMaskedWrite(GPUREG_START_DRAW_FUNC0, 0x1, 0x00000000);
@@ -393,7 +407,9 @@ int main()
 		GPUCMD_AddMaskedWrite(GPUREG_PRIMITIVE_CONFIG, 0x2, 0x00000001);
 		GPUCMD_AddWrite(GPUREG_RESTART_PRIMITIVE, 0x00000001);
 		GPUCMD_AddWrite(GPUREG_INDEXBUFFER_CONFIG, 0x80000000);
-		GPUCMD_AddWrite(GPUREG_NUMVERTICES, 0x00000003);
+
+		GPUCMD_AddWrite(GPUREG_NUMVERTICES, vertex_list_count);
+		
 		GPUCMD_AddWrite(GPUREG_VERTEX_OFFSET, 0x00000000);
 		GPUCMD_AddMaskedWrite(GPUREG_GEOSTAGE_CONFIG2, 0x1, 0x00000001);
 		GPUCMD_AddMaskedWrite(GPUREG_START_DRAW_FUNC0, 0x1, 0x00000000);
