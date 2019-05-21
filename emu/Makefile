@@ -1,5 +1,5 @@
 CXX		:= g++
-C_FLAGS := -Wall -Wextra
+C_FLAGS := -Wall -Wextra -std=gnu++17
 
 BINDIR	:= bin
 OBJDIR	:= obj
@@ -12,11 +12,12 @@ else
 EXECUTABLE	:= main
 endif
 
-INCLUDE	:= -Iinclude
+INCLUDE	:= -Iinclude -Iinclude/gpu
 
 SRC := \
 	src/main.cpp \
-	src/frontend.cpp
+	src/frontend.cpp \
+	src/gpu/rasterizer.cpp
 
 OBJ := $(addprefix $(OBJDIR)/, $(SRC:.cpp=.o))
 

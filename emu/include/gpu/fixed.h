@@ -1,7 +1,7 @@
 /*
  *  Project Coscoroba
  *
- *  Copyright (C) 2019  Wenting Zhang <zephray@outlook.com>
+ *  Copyright (C) 2015  Citra Emulator Project
  *
  *  This program is free software; you can redistribute it and/or modify it
  *  under the terms and conditions of the GNU General Public License,
@@ -18,20 +18,26 @@
  */
 #pragma once
 
-#include <SDL/SDL.h>
+// NOTE: Assuming that rasterizer coordinates are 12.4 fixed-point values
+struct Fix12P4 {
+    Fix12P4() {}
+    Fix12P4(uint16_t val) : val(val) {}
 
-// TODO: move these out here
-constexpr unsigned VIDEO_WIDTH = 400;
-constexpr unsigned VIDEO_HEIGHT = 240;
+    static uint16_t FracMask() {
+        return 0xF;
+    }
+    static uint16_t IntMask() {
+        return (uint16_t)~0xF;
+    }
 
-namespace Frontend {
-    
-    void Init();
-    bool PollEvent();
-    void Deinit();
+    operator uint16_t() const {
+        return val;
+    }
 
-    void DrawPixel(int x, int y, int r, int g, int b);
-    void Flip();
+    bool operator<(const Fix12P4& oth) const {
+        return (uint16_t) * this < (uint16_t)oth;
+    }
 
-    extern SDL_Surface *screen;
-}
+private:
+    uint16_t val;
+};
