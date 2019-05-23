@@ -18,6 +18,8 @@
  */
 #pragma once
 // Rasterizer Interface
+#include "main.h"
+#include "frontend.h"
 #include "shader.h"
 #include "fixed.h"
 
@@ -71,6 +73,7 @@ public:
 // Software based rasterizer
 class Rasterizer : public RasterizerInterface {
 public:
+    Rasterizer() : frontend(singleton<Frontend>()) {}
     void AddTriangle(
             const OutputVertex& v0,
             const OutputVertex& v1,
@@ -79,8 +82,9 @@ public:
     // need one, though.
     // But this emulator would probably never get a hardware rasterizer...
     void DrawTriangles() override {}
-
+    
 private:
+    Frontend &frontend;
     void ProcessTriangle(
             const RasterizerVertex& v0,
             const RasterizerVertex& v1,

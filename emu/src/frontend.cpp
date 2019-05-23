@@ -19,55 +19,50 @@
 #include "main.h"
 #include "frontend.h"
 
-namespace Frontend {
+Frontend::Frontend() {
+    // Initialize the window
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        //LOG_CRITICAL(Frontend, "Failed to initialize SDL1! Exiting...");
+        exit(1);
+    }
 
-    SDL_Surface *screen;
+    SDL_WM_SetCaption("Coscoroba Emu", NULL);
 
-    void Init() {
-        // Initialize the window
-        if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-            //LOG_CRITICAL(Frontend, "Failed to initialize SDL1! Exiting...");
-            exit(1);
+    screen = SDL_SetVideoMode(VIDEO_WIDTH, VIDEO_HEIGHT, 32, SDL_SWSURFACE);
+
+    if (screen == NULL) {
+        //LOG_CRITICAL(Frontend, "Failed to create window! Exiting...");
+        exit(1);
+    }
+}
+
+Frontend::~Frontend() {
+    free(screen);
+    SDL_Quit();
+}
+
+bool Frontend::PollEvent() {
+    SDL_Event event;
+    bool result = true;
+    if (SDL_PollEvent(&event)) {
+        switch (event.type) {
+        case SDL_QUIT:
+            result = false;
+            break;
+        default:
+            break;
         }
-
-        SDL_WM_SetCaption("Coscoroba Emu", NULL);
-
-        screen = SDL_SetVideoMode(VIDEO_WIDTH, VIDEO_HEIGHT, 32, SDL_SWSURFACE);
-
-        if (screen == NULL) {
-            //LOG_CRITICAL(Frontend, "Failed to create window! Exiting...");
-            exit(1);
-        }
     }
+    return result;
+}
 
-    bool PollEvent() {
-        SDL_Event event;
-        bool result = true;
-        if (SDL_PollEvent(&event)) {
-            switch (event.type) {
-            case SDL_QUIT:
-                result = false;
-                break;
-            default:
-                break;
-            }
-        }
-        return result;
-    }
+void Frontend::DrawPixel(int x, int y, int r, int g, int b) {
+    uint32_t *buffer = (uint32_t *)screen->pixels;
+    uint32_t color = SDL_MapRGB(screen->format, r, g, b);
+    buffer[y * VIDEO_WIDTH + x] = color; 
+}
 
-    void DrawPixel(int x, int y, int r, int g, int b) {
-        uint32_t *buffer = (uint32_t *)screen->pixels;
-        uint32_t color = 0xff000000 | (r << 16) | (g << 8) | b;
-        buffer[y * VIDEO_WIDTH + x] = color; 
-    }
+void Frontend::Flip() {
+    SDL_Flip(screen);
+}
 
-    void Flip() {
-        SDL_Flip(screen);
-    }
-
-    void Deinit() {
-        free(screen);
-        SDL_Quit();
-    }
-
-} // namespace FrontEnd

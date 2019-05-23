@@ -274,7 +274,7 @@ void Rasterizer::ProcessTriangle(
                     255)),
             };
 
-            Frontend::DrawPixel(x >> 4, y >> 4, primary_color.r(), primary_color.g(), primary_color.b());
+            frontend.DrawPixel(x >> 4, y >> 4, primary_color.r(), primary_color.g(), primary_color.b());
         }
     }
 }

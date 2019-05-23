@@ -20,5 +20,11 @@
 
 #include <stdio.h>
 #include <cstddef>
+#include <utility>
 
 #define VERSION "0.1"
+
+template <typename T, typename... Args> T &singleton(Args &&... args) {
+  static T instance(std::forward<Args>(args)...);
+  return instance;
+}

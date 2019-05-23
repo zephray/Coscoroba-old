@@ -24,7 +24,9 @@
 
 int main(int argc, char *argv[]) {
 	printf("Coscoroba Emulator\nVersion %s\n", VERSION);
-	Frontend::Init();
+	
+	//Frontend::Init();
+	auto &frontend = singleton<Frontend>();
 
 	OutputVertex v0;
     OutputVertex v1;
@@ -52,7 +54,7 @@ int main(int argc, char *argv[]) {
         float24::FromFloat32(0.2f),
 		float24::FromFloat32(1.0f));
 	v1.pos = MakeVec(
-		float24::FromFloat32(1.0f),
+		float24::FromFloat32(1.14f),
         float24::FromFloat32(0.0f),
         float24::FromFloat32(0.2f),
 		float24::FromFloat32(1.0f));
@@ -64,11 +66,11 @@ int main(int argc, char *argv[]) {
 		
 	rasterizer.AddTriangle(v0, v1, v2);
 
-	Frontend::Flip();
+	frontend.Flip();
 
-	while (Frontend::PollEvent()) {
+	while (frontend.PollEvent()) {
 		// ?
 	}
 
-	Frontend::Deinit();
+	//Frontend::Deinit();
 }

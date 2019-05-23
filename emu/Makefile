@@ -35,4 +35,5 @@ $(OBJDIR)/%.o: %.cpp
 	$(CXX) $(C_FLAGS) $(INCLUDE) -c $< -o $@
 
 $(BINDIR)/$(EXECUTABLE): $(OBJ)
+	mkdir -p $(BINDIR)
 	$(CXX) $(C_FLAGS) $(INCLUDE) $^ -o $@ $(LIBRARIES)

@@ -24,14 +24,16 @@
 constexpr unsigned VIDEO_WIDTH = 400;
 constexpr unsigned VIDEO_HEIGHT = 240;
 
-namespace Frontend {
+class Frontend {
+public:
+    Frontend();
+    ~Frontend();
     
-    void Init();
     bool PollEvent();
-    void Deinit();
 
     void DrawPixel(int x, int y, int r, int g, int b);
     void Flip();
 
-    extern SDL_Surface *screen;
-}
+private:
+    SDL_Surface *screen;
+};
