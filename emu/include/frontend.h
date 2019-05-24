@@ -18,11 +18,17 @@
  */
 #pragma once
 
+#include "main.h"
 #include <SDL/SDL.h>
 
 // TODO: move these out here
+#ifdef DEBUG_BUILD
+constexpr unsigned VIDEO_WIDTH = 800;
+constexpr unsigned VIDEO_HEIGHT = 480;
+#else
 constexpr unsigned VIDEO_WIDTH = 400;
 constexpr unsigned VIDEO_HEIGHT = 240;
+#endif
 
 class Frontend {
 public:

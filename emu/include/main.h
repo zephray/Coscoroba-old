@@ -19,10 +19,13 @@
 #pragma once
 
 #include <stdio.h>
+#include <math.h>
 #include <cstddef>
 #include <utility>
 
 #define VERSION "0.1"
+
+#define DEBUG_BUILD
 
 template <typename T, typename... Args> T &singleton(Args &&... args) {
   static T instance(std::forward<Args>(args)...);

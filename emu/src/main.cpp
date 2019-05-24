@@ -31,40 +31,56 @@ int main(int argc, char *argv[]) {
 	OutputVertex v0;
     OutputVertex v1;
     OutputVertex v2;
+	OutputVertex v3;
 	Rasterizer rasterizer;
 
+	// Left up corner
 	v0.color = MakeVec(
-		float24::FromFloat32(0.0f),
-        float24::FromFloat32(0.0f),
-        float24::FromFloat32(1.0f),
-		float24::FromFloat32(1.0f));
-	v1.color = MakeVec(
-		float24::FromFloat32(0.0f),
-        float24::FromFloat32(1.0f),
-        float24::FromFloat32(0.0f),
-		float24::FromFloat32(1.0f));
-	v2.color = MakeVec(
 		float24::FromFloat32(1.0f),
         float24::FromFloat32(0.0f),
         float24::FromFloat32(0.0f),
 		float24::FromFloat32(1.0f));
 	v0.pos = MakeVec(
-		float24::FromFloat32(-0.2f),
-        float24::FromFloat32(-0.8f),
+		float24::FromFloat32(-0.45f),
+        float24::FromFloat32(-0.75f),
         float24::FromFloat32(0.2f),
+		float24::FromFloat32(1.0f));
+	// Right up corner
+	v1.color = MakeVec(
+		float24::FromFloat32(1.0f),
+        float24::FromFloat32(1.0f),
+        float24::FromFloat32(0.0f),
 		float24::FromFloat32(1.0f));
 	v1.pos = MakeVec(
-		float24::FromFloat32(1.14f),
-        float24::FromFloat32(0.0f),
+		float24::FromFloat32(0.45f),
+        float24::FromFloat32(-.75f),
         float24::FromFloat32(0.2f),
 		float24::FromFloat32(1.0f));
+	// Right lower corner
+	v2.color = MakeVec(
+		float24::FromFloat32(0.0f),
+        float24::FromFloat32(1.0f),
+        float24::FromFloat32(1.0f),
+		float24::FromFloat32(1.0f));
 	v2.pos = MakeVec(
-		float24::FromFloat32(-.2f),
+		float24::FromFloat32(0.45f),
+        float24::FromFloat32(0.75f),
+        float24::FromFloat32(0.2f),
+		float24::FromFloat32(1.0f));
+	// Left lower corner
+	v3.color = MakeVec(
+		float24::FromFloat32(0.0f),
         float24::FromFloat32(0.0f),
+        float24::FromFloat32(1.0f),
+		float24::FromFloat32(1.0f));
+	v3.pos = MakeVec(
+		float24::FromFloat32(-.45f),
+        float24::FromFloat32(0.75f),
         float24::FromFloat32(0.2f),
 		float24::FromFloat32(1.0f));
 		
 	rasterizer.AddTriangle(v0, v1, v2);
+	rasterizer.AddTriangle(v2, v3, v0);
 
 	frontend.Flip();
 

@@ -31,8 +31,9 @@ static void InitScreenCoordinates(RasterizerVertex& vtx) {
         float24 offset_z;
     } viewport;
 
-    viewport.halfsize_x = float24::FromRaw(0x0045e000);
-    viewport.halfsize_y = float24::FromRaw(0x00469000);
+    // TODO: Read these from register
+    viewport.halfsize_x = float24::FromFloat32(200.0);
+    viewport.halfsize_y = float24::FromFloat32(120.0);
     viewport.offset_x = float24::FromFloat32(0.0f);
     viewport.offset_y = float24::FromFloat32(0.0f);
 
@@ -236,6 +237,9 @@ void Rasterizer::ProcessTriangle(
 
             // Clamp the result
             depth = std::clamp(depth, 0.0f, 1.0f);
+
+            frontend.DrawPixel(x >> 4 + VIDEO_WIDTH / 2, y >> 4, 
+                depth * 255.0, depth * 255.0, depth * 255.0);
 
             // Perspective correct attribute interpolation:
             // Attribute values cannot be calculated by simple linear interpolation since

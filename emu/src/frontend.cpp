@@ -58,6 +58,13 @@ bool Frontend::PollEvent() {
 
 void Frontend::DrawPixel(int x, int y, int r, int g, int b) {
     uint32_t *buffer = (uint32_t *)screen->pixels;
+    // Gamma correction
+    /*float rr = pow((float)r / 255.0, 1/2.2);
+    float gg = pow((float)g / 255.0, 1/2.2);
+    float bb = pow((float)b / 255.0, 1/2.2);
+    r = rr * 255;
+    g = gg * 255;
+    b = bb * 255;*/
     uint32_t color = SDL_MapRGB(screen->format, r, g, b);
     buffer[y * VIDEO_WIDTH + x] = color; 
 }
