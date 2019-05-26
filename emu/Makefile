@@ -17,7 +17,8 @@ INCLUDE	:= -Iinclude -Iinclude/gpu
 SRC := \
 	src/main.cpp \
 	src/frontend.cpp \
-	src/gpu/rasterizer.cpp
+	src/gpu/rasterizer.cpp \
+	src/gpu/shader.cpp
 
 OBJ := $(addprefix $(OBJDIR)/, $(SRC:.cpp=.o))
 

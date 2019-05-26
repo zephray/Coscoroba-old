@@ -21,8 +21,13 @@
 #include <array>
 #include <cstddef>
 #include <cstring>
+#include <cmath>
 #include <functional>
 #include <type_traits>
+#include <string>
+#include <sstream>
+#include <map>
+#include <numeric>
 
 // Common functions
 
@@ -36,3 +41,13 @@
 // depending on the current source line to make sure variable names are unique.
 #define INSERT_PADDING_BYTES(num_bytes) uint8_t CONCAT2(pad, __LINE__)[(num_bytes)]
 #define INSERT_PADDING_WORDS(num_words) uint32_t CONCAT2(pad, __LINE__)[(num_words)]
+
+#define ASSERT(_a_, ...)                                                 \
+    do                                                                   \
+        if (!(_a_)) {                                                    \
+            fprintf(stderr, "Assertion failed!\n" __VA_ARGS__); exit(1); \
+        }                                                                \
+    while (0)
+
+#define UNREACHABLE() { ASSERT(false, "Unreachable code!"); }
+#define UNIMPLEMENTED() { fprintf(stderr, "Unimplemented function!"); }

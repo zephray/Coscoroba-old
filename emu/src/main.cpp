@@ -28,10 +28,10 @@ int main(int argc, char *argv[]) {
 	//Frontend::Init();
 	auto &frontend = singleton<Frontend>();
 
-	OutputVertex v0;
-    OutputVertex v1;
-    OutputVertex v2;
-	OutputVertex v3;
+	Shader::OutputVertex v0;
+    Shader::OutputVertex v1;
+    Shader::OutputVertex v2;
+	Shader::OutputVertex v3;
 	Rasterizer rasterizer;
 
 	// Left up corner

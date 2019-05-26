@@ -26,7 +26,7 @@
 // The rasterizer accepts output vertex from either VS or GS, rasterize the 
 // triangle, and output fragment to the FS.
 
-struct RasterizerVertex : OutputVertex {
+struct RasterizerVertex : Shader::OutputVertex {
     RasterizerVertex(const OutputVertex& v) : OutputVertex(v) {}
 
     Vec3<float24> screen_position;
@@ -62,9 +62,9 @@ public:
 
     // Add a primitive to the queue
     virtual void AddTriangle(
-            const OutputVertex& v0,
-            const OutputVertex& v1,
-            const OutputVertex& v2) = 0;
+            const Shader::OutputVertex& v0,
+            const Shader::OutputVertex& v1,
+            const Shader::OutputVertex& v2) = 0;
 
     // Draw the current queue
     virtual void DrawTriangles() = 0;
@@ -75,9 +75,9 @@ class Rasterizer : public RasterizerInterface {
 public:
     Rasterizer() : frontend(singleton<Frontend>()) {}
     void AddTriangle(
-            const OutputVertex& v0,
-            const OutputVertex& v1,
-            const OutputVertex& v2) override;
+            const Shader::OutputVertex& v0,
+            const Shader::OutputVertex& v1,
+            const Shader::OutputVertex& v2) override;
     // Well, actually there is no queue. For a hardware rasterizer one would
     // need one, though.
     // But this emulator would probably never get a hardware rasterizer...

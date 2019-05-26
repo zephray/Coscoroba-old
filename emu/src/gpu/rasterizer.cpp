@@ -55,9 +55,9 @@ static void InitScreenCoordinates(RasterizerVertex& vtx) {
 }
 
 void Rasterizer::AddTriangle(
-            const OutputVertex& v0,
-            const OutputVertex& v1,
-            const OutputVertex& v2) {
+            const Shader::OutputVertex& v0,
+            const Shader::OutputVertex& v1,
+            const Shader::OutputVertex& v2) {
     
     RasterizerVertex vtx0(v0);
     RasterizerVertex vtx1(v1);
@@ -256,7 +256,8 @@ void Rasterizer::ProcessTriangle(
             //     u = u_over_w / one_over_w
             //
             // The generalization to three vertices is straightforward in baricentric coordinates.
-            auto GetInterpolatedAttribute = [&](float24 attr0, float24 attr1, float24 attr2) {
+            auto GetInterpolatedAttribute = [&](
+                    float24 attr0, float24 attr1, float24 attr2) {
                 auto attr_over_w = MakeVec(attr0, attr1, attr2);
                 float24 interpolated_attr_over_w =
                         Dot(attr_over_w, baricentric_coordinates);
