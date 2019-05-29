@@ -119,9 +119,9 @@ namespace Shader {
         unsigned int entry_point;
     };
 
-    class Shader {
+    class ShaderEngine {
     public:
-        Shader(Setup &setup, Uniforms &uniforms) : 
+        ShaderEngine(Setup &setup, Uniforms &uniforms) : 
             setup(setup), uniforms(uniforms) {}
         void LoadInput(const AttributeBuffer& input);
         void WriteOutput(AttributeBuffer& output);

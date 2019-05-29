@@ -36,25 +36,25 @@ namespace Shader {
         uint32_t loop_address;   // The address where we'll return to after each loop iteration
     };
 
-    void Shader::LoadInput(const AttributeBuffer& input) {
+    void ShaderEngine::LoadInput(const AttributeBuffer& input) {
         // TODO: mapping should be modifiable from register settings
         for (unsigned attr = 0; attr <= 16; ++attr) {
             registers.input[attr] = input.attr[attr];
         }
     }
 
-    void Shader::WriteOutput(AttributeBuffer& output) {
+    void ShaderEngine::WriteOutput(AttributeBuffer& output) {
         // TODO: output registers can be masked using register settings
         for (unsigned attr = 0; attr <= 16; ++attr) {
             output.attr[attr] = registers.output[attr];
         }
     }
 
-    void Shader::SetupBatch(unsigned int entry_point) {
+    void ShaderEngine::SetupBatch(unsigned int entry_point) {
         setup.entry_point = entry_point;
     }
 
-    void Shader::Run() {
+    void ShaderEngine::Run() {
         // TODO: Is there a maximal size for this?
         std::vector<CallStackElement> call_stack;
         uint32_t program_counter = setup.entry_point;
@@ -122,6 +122,8 @@ namespace Shader {
 
             const Instruction instr = {program_code[program_counter]};
             const SwizzlePattern swizzle = {swizzle_data[instr.common.operand_desc_id]};
+
+            printf("PC %04x, INSTR %08x, SWIZZLE %08x\n", program_counter, instr.hex, swizzle.hex);
 
             auto LookupSourceRegister = [&](const SourceRegister& source_reg) -> const float24* {
                 switch (source_reg.GetRegisterType()) {

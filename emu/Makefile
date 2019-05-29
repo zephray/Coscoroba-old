@@ -25,8 +25,8 @@ OBJ := $(addprefix $(OBJDIR)/, $(SRC:.cpp=.o))
 all: $(BINDIR)/$(EXECUTABLE)
 
 clean:
-	rm $(BINDIR)/$(EXECUTABLE)
 	rm -rf $(OBJDIR)/
+	rm $(BINDIR)/$(EXECUTABLE)
 
 run: all
 	./$(BINDIR)/$(EXECUTABLE)
