@@ -115,13 +115,13 @@ int main(int argc, char *argv[]) {
 	setup.program_code[6]  = 0x4c201006; // mov  o1.xyzw  v1.xyzw
 	setup.program_code[7]  = 0x88000000; // end
 
-	setup.swizzle_data[0]  = 0x0000036e;
-	setup.swizzle_data[1]  = 0x00000aa1;
-	setup.swizzle_data[2]  = 0x0006c368;
-	setup.swizzle_data[3]  = 0x0006c364;
-	setup.swizzle_data[4]  = 0x0006c362;
-	setup.swizzle_data[5]  = 0x0006c361;
-	setup.swizzle_data[6]  = 0x0000036f;
+	setup.swizzle_data[0]  = 0x0000036e; // xyz_, xyzw, xxxx, xxxx
+	setup.swizzle_data[1]  = 0x00000aa1; // ___w, yyyy, xxxx, xxxx
+	setup.swizzle_data[2]  = 0x0006c368; // x___, xyzw, xyzw, xxxx
+	setup.swizzle_data[3]  = 0x0006c364; // _y__, xyzw, xyzw, xxxx
+	setup.swizzle_data[4]  = 0x0006c362; // __z_, xyzw, xyzw, xxxx
+	setup.swizzle_data[5]  = 0x0006c361; // ___w, xyzw, xyzw, xxxx
+	setup.swizzle_data[6]  = 0x0000036f; // xyzw, xyzw, xxxx, xxxx
 
 	setup.entry_point = 0x0000;
 
