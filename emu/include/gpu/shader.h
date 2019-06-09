@@ -41,15 +41,8 @@ namespace Shader {
     // TODO: Actually, when programmable FS is used, these shouldn't be predefined.
     struct OutputVertex {
         Vec4<float24> pos;
-        Vec4<float24> quat;
         Vec4<float24> color;
-        Vec2<float24> tc0;
-        Vec2<float24> tc1;
-        float24 tc0_w;
-        INSERT_PADDING_WORDS(1);
-        Vec3<float24> view;
-        INSERT_PADDING_WORDS(1);
-        Vec2<float24> tc2;
+        Vec4<float24> attr[14];
     };
 
     // Register file owned by each hardware thread
@@ -139,6 +132,6 @@ namespace Shader {
         signed int address_registers[3];
     };
 
-    static_assert(sizeof(OutputVertex) == 24 * 4, "OutputVertex has invalid size");
+    static_assert(sizeof(OutputVertex) == sizeof(AttributeBuffer), "OutputVertex has invalid size");
 
 };

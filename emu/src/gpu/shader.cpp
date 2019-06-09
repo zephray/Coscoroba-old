@@ -38,14 +38,14 @@ namespace Shader {
 
     void ShaderEngine::LoadInput(const AttributeBuffer& input) {
         // TODO: mapping should be modifiable from register settings
-        for (unsigned attr = 0; attr <= 16; ++attr) {
+        for (unsigned attr = 0; attr < 16; ++attr) {
             registers.input[attr] = input.attr[attr];
         }
     }
 
     void ShaderEngine::WriteOutput(AttributeBuffer& output) {
         // TODO: output registers can be masked using register settings
-        for (unsigned attr = 0; attr <= 16; ++attr) {
+        for (unsigned attr = 0; attr < 16; ++attr) {
             output.attr[attr] = registers.output[attr];
         }
     }
@@ -123,7 +123,7 @@ namespace Shader {
             const Instruction instr = {program_code[program_counter]};
             const SwizzlePattern swizzle = {swizzle_data[instr.common.operand_desc_id]};
 
-            printf("PC %04x, INSTR %08x, SWIZZLE %08x\n", program_counter, instr.hex, swizzle.hex);
+            //printf("PC %04x, INSTR %08x, SWIZZLE %08x\n", program_counter, instr.hex, swizzle.hex);
 
             auto LookupSourceRegister = [&](const SourceRegister& source_reg) -> const float24* {
                 switch (source_reg.GetRegisterType()) {

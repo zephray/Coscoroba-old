@@ -22,88 +22,42 @@
 #include "gpu/shader.h"
 #include "gpu/rasterizer.h"
 
+#define Vec4FP24(x, y, z, w) MakeVec(\
+		float24::FromFloat32(x),\
+        float24::FromFloat32(y),\
+        float24::FromFloat32(z),\
+		float24::FromFloat32(w))
+
 int main(int argc, char *argv[]) {
 	printf("Coscoroba Emulator\nVersion %s\n", VERSION);
 	
 	//Frontend::Init();
 	auto &frontend = singleton<Frontend>();
 
-	/*Shader::OutputVertex v0;
-    Shader::OutputVertex v1;
-    Shader::OutputVertex v2;
-	Shader::OutputVertex v3;
+	constexpr int VERTEX_COUNT = 4;
+	Shader::OutputVertex vertex[VERTEX_COUNT];
 
-	// Left up corner
-	v0.color = MakeVec(
-		float24::FromFloat32(1.0f),
-        float24::FromFloat32(0.0f),
-        float24::FromFloat32(0.0f),
-		float24::FromFloat32(1.0f));
-	v0.pos = MakeVec(
-		float24::FromFloat32(-0.45f),
-        float24::FromFloat32(-0.75f),
-        float24::FromFloat32(0.2f),
-		float24::FromFloat32(1.0f));
-	// Right up corner
-	v1.color = MakeVec(
-		float24::FromFloat32(1.0f),
-        float24::FromFloat32(1.0f),
-        float24::FromFloat32(0.0f),
-		float24::FromFloat32(1.0f));
-	v1.pos = MakeVec(
-		float24::FromFloat32(0.45f),
-        float24::FromFloat32(-.75f),
-        float24::FromFloat32(0.2f),
-		float24::FromFloat32(1.0f));
-	// Right lower corner
-	v2.color = MakeVec(
-		float24::FromFloat32(0.0f),
-        float24::FromFloat32(1.0f),
-        float24::FromFloat32(1.0f),
-		float24::FromFloat32(1.0f));
-	v2.pos = MakeVec(
-		float24::FromFloat32(0.45f),
-        float24::FromFloat32(0.75f),
-        float24::FromFloat32(0.2f),
-		float24::FromFloat32(1.0f));
 	// Left lower corner
-	v3.color = MakeVec(
-		float24::FromFloat32(0.0f),
-        float24::FromFloat32(0.0f),
-        float24::FromFloat32(1.0f),
-		float24::FromFloat32(1.0f));
-	v3.pos = MakeVec(
-		float24::FromFloat32(-.45f),
-        float24::FromFloat32(0.75f),
-        float24::FromFloat32(0.2f),
-		float24::FromFloat32(1.0f));*/
-
+	vertex[0].pos = Vec4FP24(100.0f, 220.0f, 0.5f, 1.0f);
+	vertex[0].color = Vec4FP24(1.0f, 0.0f, 0.0f, 1.0f);
+	// Right lower corner
+	vertex[1].pos = Vec4FP24(300.0f, 220.0f, 0.5f, 1.0f);
+	vertex[1].color = Vec4FP24(1.0f, 1.0f, 0.0f, 1.0f);
+	// Right upper corner
+	vertex[2].pos = Vec4FP24(300.0f, 20.0f, 0.5f, 1.0f);
+	vertex[2].color = Vec4FP24(0.0f, 1.0f, 1.0f, 1.0f);
+	// Left upper corner
+	vertex[3].pos = Vec4FP24(100.0f, 20.0f, 0.5f, 1.0f);
+	vertex[3].color = Vec4FP24(0.0f, 0.0f, 1.0f, 1.0f);
+	
 	Shader::Uniforms uniform;
-	uniform.f[0] = {
-		float24::FromFloat32(0.0), 
-		float24::FromFloat32(5.0/600.0),
-		float24::FromFloat32(0.0),
-		float24::FromFloat32(-1.0)};
-	uniform.f[1] = {
-		float24::FromFloat32(-0.005), 
-		float24::FromFloat32(0.0),
-		float24::FromFloat32(0.0),
-		float24::FromFloat32(1.0)};
-	uniform.f[2] = {
-		float24::FromFloat32(0.0), 
-		float24::FromFloat32(0.0),
-		float24::FromFloat32(1.0),
-		float24::FromFloat32(-1.0)};
-	uniform.f[3] = {
-		float24::FromFloat32(0.0), 
-		float24::FromFloat32(0.0),
-		float24::FromFloat32(0.0),
-		float24::FromFloat32(-1.0)};
-	uniform.f[95] = {
-		float24::FromFloat32(0.0), 
-		float24::FromFloat32(1.0),
-		float24::FromFloat32(-1.0),
-		float24::FromFloat32(0.1)};
+	// Projection Matrix
+	uniform.f[0] = Vec4FP24(0.005f, 0.0f, 0.0f, -1.0f);
+	uniform.f[1] = Vec4FP24(0.0f, -5.0f/600.0f, 0.0f, 1.0f);
+	uniform.f[2] = Vec4FP24(0.0f, 0.0f, 1.0f, -1.0f);
+	uniform.f[3] = Vec4FP24(0.0f, 0.0f, 0.0f, -1.0f);
+	// Constants
+	uniform.f[95] = Vec4FP24(0.0f, 1.0f, -1.0f, 0.1f);
 
 	Shader::Setup setup;
 	setup.program_code[0]  = 0x4e000000; // mov  r0.xyz_  v0.xyzw
@@ -125,40 +79,17 @@ int main(int argc, char *argv[]) {
 
 	setup.entry_point = 0x0000;
 
-	Shader::AttributeBuffer input_attr;
-	input_attr.attr[0] = {  // position
-		float24::FromFloat32(100.0), 
-		float24::FromFloat32(220.0),
-		float24::FromFloat32(0.5),
-		float24::FromFloat32(1.0)};
-	input_attr.attr[1] = {  // color
-		float24::FromFloat32(1.0), 
-		float24::FromFloat32(0.0),
-		float24::FromFloat32(1.0),
-		float24::FromFloat32(1.0)};
-	Shader::AttributeBuffer output_attr;
-
 	Shader::ShaderEngine shader_engine(setup, uniform);
-	shader_engine.LoadInput(input_attr);
-	shader_engine.Run();
-	shader_engine.WriteOutput(output_attr);
+	for (int i = 0; i < VERTEX_COUNT; i++) {
+		shader_engine.LoadInput(*((Shader::AttributeBuffer *)&vertex[i]));
+		shader_engine.Run();
+		shader_engine.WriteOutput(*((Shader::AttributeBuffer *)&vertex[i]));
+	}
 	
-	printf("o0: %f, %f, %f, %f\n", 
-		output_attr.attr[0].x.ToFloat32(),
-		output_attr.attr[0].y.ToFloat32(),
-		output_attr.attr[0].z.ToFloat32(),
-		output_attr.attr[0].w.ToFloat32());
-	printf("o1: %f, %f, %f, %f\n", 
-		output_attr.attr[1].x.ToFloat32(),
-		output_attr.attr[1].y.ToFloat32(),
-		output_attr.attr[1].z.ToFloat32(),
-		output_attr.attr[1].w.ToFloat32());
+	Rasterizer rasterizer;
 
-
-	/*Rasterizer rasterizer;
-
-	rasterizer.AddTriangle(v0, v1, v2);
-	rasterizer.AddTriangle(v2, v3, v0);*/
+	rasterizer.AddTriangle(vertex[0], vertex[1], vertex[2]);
+	rasterizer.AddTriangle(vertex[2], vertex[3], vertex[0]);
 
 	frontend.Flip();
 

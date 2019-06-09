@@ -36,13 +36,13 @@ struct RasterizerVertex : Shader::OutputVertex {
     // Note: This function cannot be called after perspective divide
     void Lerp(float24 factor, const RasterizerVertex& vtx) {
         pos = pos * factor + vtx.pos * (float24::FromFloat32(1) - factor);
-        quat = quat * factor + vtx.quat * (float24::FromFloat32(1) - factor);
         color = color * factor + vtx.color * (float24::FromFloat32(1) - factor);
+        /*quat = quat * factor + vtx.quat * (float24::FromFloat32(1) - factor);
         tc0 = tc0 * factor + vtx.tc0 * (float24::FromFloat32(1) - factor);
         tc1 = tc1 * factor + vtx.tc1 * (float24::FromFloat32(1) - factor);
         tc0_w = tc0_w * factor + vtx.tc0_w * (float24::FromFloat32(1) - factor);
         view = view * factor + vtx.view * (float24::FromFloat32(1) - factor);
-        tc2 = tc2 * factor + vtx.tc2 * (float24::FromFloat32(1) - factor);
+        tc2 = tc2 * factor + vtx.tc2 * (float24::FromFloat32(1) - factor);*/
     }
 
     // Linear interpolation
