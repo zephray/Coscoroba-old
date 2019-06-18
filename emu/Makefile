@@ -18,7 +18,8 @@ SRC := \
 	src/main.cpp \
 	src/frontend.cpp \
 	src/gpu/rasterizer.cpp \
-	src/gpu/shader.cpp
+	src/gpu/shader.cpp \
+	src/gpu/texturing.cpp
 
 OBJ := $(addprefix $(OBJDIR)/, $(SRC:.cpp=.o))
 
