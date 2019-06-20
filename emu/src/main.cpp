@@ -21,6 +21,9 @@
 #include "gpu/cos.h"
 #include "gpu/shader.h"
 #include "gpu/rasterizer.h"
+#include "gpu/texturing.h"
+
+#include "kitten.h"
 
 #define Vec4FP24(x, y, z, w) MakeVec(\
 		float24::FromFloat32(x),\
@@ -34,7 +37,7 @@ int main(int argc, char *argv[]) {
 	//Frontend::Init();
 	auto &frontend = singleton<Frontend>();
 
-	constexpr int VERTEX_COUNT = 4;
+	/*constexpr int VERTEX_COUNT = 4;
 	Shader::OutputVertex vertex[VERTEX_COUNT];
 
 	// Left lower corner
@@ -89,7 +92,24 @@ int main(int argc, char *argv[]) {
 	Rasterizer rasterizer;
 
 	rasterizer.AddTriangle(vertex[0], vertex[1], vertex[2]);
-	rasterizer.AddTriangle(vertex[2], vertex[3], vertex[0]);
+	rasterizer.AddTriangle(vertex[2], vertex[3], vertex[0]);*/
+	
+	// Fun with texture
+	Texturing::TextureInfo textureInfo;
+	textureInfo.width = 64;
+	textureInfo.height = 64;
+	textureInfo.stride = 8 * 8 * 4 * 8;
+	textureInfo.format = Texturing::RGBA8;
+
+	for (int x = 0; x < 64; x++)
+		for (int y = 0; y < 64; y++) {
+			Vec4<uint8_t> color = Texturing::LookupTexture(kitten_raw + 4,
+					x, y, textureInfo);
+			frontend.DrawPixel(x * 2, y * 2, color.r(), color.g(), color.b());
+			frontend.DrawPixel(x * 2 + 1, y * 2, color.r(), color.g(), color.b());
+			frontend.DrawPixel(x * 2, y * 2 + 1, color.r(), color.g(), color.b());
+			frontend.DrawPixel(x * 2 + 1, y * 2 + 1, color.r(), color.g(), color.b());
+		}
 
 	frontend.Flip();
 
