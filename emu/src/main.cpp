@@ -31,6 +31,37 @@
         float24::FromFloat32(z),\
 		float24::FromFloat32(w))
 
+#define M_TAU (2*M_PI)
+#define AngleFromDegrees(_angle) ((_angle)*M_TAU/360.0f)
+
+void Mtx_PerspTilt(Vec4<float24> *projection, float fovy, float aspect, 
+		float near, float far, bool isLeftHanded) {
+	// Notes:
+	// Includes adjusting depth range from [-1,1] to [-1,0]
+
+	// Notes:
+	// fovx = 2 atan(tan(fovy/2)*w/h)
+	// fovy = 2 atan(tan(fovx/2)*h/w)
+	// invaspect = h/w
+
+	// a0,0 = h / (w*tan(fovy/2)) =
+	//      = h / (w*tan(2 atan(tan(fovx/2)*h/w) / 2)) =
+	//      = h / (w*tan( atan(tan(fovx/2)*h/w) )) =
+	//      = h / (w * tan(fovx/2)*h/w) =
+	//      = 1 / tan(fovx/2)
+
+	// a1,1 = 1 / tan(fovy/2) = (...) = w / (h*tan(fovx/2))
+
+	float fovy_tan = tanf(fovy/2.0f);
+
+	float z = isLeftHanded ? 1.0f : -1.0f;
+	float scale = near / (near - far);
+	projection[0] = Vec4FP24(1.0f / fovy_tan, 0.0f, 0.0f, 0.0f);
+	projection[1] = Vec4FP24(0.0f, 1.0f / (fovy_tan*aspect), 0.0f, 0.0f);
+	projection[2] = Vec4FP24(0.0f, 0.0f, -z * scale, far * scale);
+	projection[3] = Vec4FP24(0.0f, 0.0f, z, 0.0f);
+}
+
 int main(int argc, char *argv[]) {
 	printf("Coscoroba Emulator\nVersion %s\n", VERSION);
 	
@@ -56,6 +87,7 @@ int main(int argc, char *argv[]) {
 	
 	Shader::Uniforms uniform;
 	// Projection Matrix
+	Vec4<float24> projection = 
 	uniform.f[0] = Vec4FP24(0.005f, 0.0f, 0.0f, -1.0f);
 	uniform.f[1] = Vec4FP24(0.0f, -5.0f/600.0f, 0.0f, 1.0f);
 	uniform.f[2] = Vec4FP24(0.0f, 0.0f, 1.0f, -1.0f);
@@ -66,10 +98,14 @@ int main(int argc, char *argv[]) {
 	Shader::Setup setup;
 	setup.program_code[0]  = 0x4e000000; // mov  r0.xyz_  v0.xyzw
 	setup.program_code[1]  = 0x4e07f001; // mov  r0.___w c95.yyyy
-	setup.program_code[2]  = 0x08020802; // dp4  o0.x___  c0.xyzw  r0.xyzw
-	setup.program_code[3]  = 0x08021803; // dp4  o0._y__  c1.xyzw  r0.xyzw
-	setup.program_code[4]  = 0x08022804; // dp4  o0.__z_  c2.xyzw  r0.xyzw
-	setup.program_code[5]  = 0x08023805; // dp4  o0.___w  c3.xyzw  r0.xyzw
+	setup.program_code[2]  = 0x0a224802; // dp4  r1.x___  c4.xyzw  r0.xyzw
+	setup.program_code[3]  = 0x0a225803; // dp4  r1._y__  c5.xyzw  r0.xyzw
+	setup.program_code[4]  = 0x0a226804; // dp4  r1.__z_  c6.xyzw  r0.xyzw
+	setup.program_code[5]  = 0x0a227805; // dp4  r1.___w  c7.xyzw  r0.xyzw
+	setup.program_code[2]  = 0x08020882; // dp4  o0.x___  c0.xyzw  r1.xyzw
+	setup.program_code[3]  = 0x08021883; // dp4  o0._y__  c1.xyzw  r1.xyzw
+	setup.program_code[4]  = 0x08022884; // dp4  o0.__z_  c2.xyzw  r1.xyzw
+	setup.program_code[5]  = 0x08023885; // dp4  o0.___w  c3.xyzw  r1.xyzw
 	setup.program_code[6]  = 0x4c201006; // mov  o1.xyzw  v1.xyzw
 	setup.program_code[7]  = 0x88000000; // end
 
