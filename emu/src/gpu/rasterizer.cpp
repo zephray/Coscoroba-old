@@ -18,8 +18,10 @@
  *  51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 #include "rasterizer.h"
-// TODO: remove this.
+// TODO: remove these.
 #include "frontend.h"
+#include "texturing.h"
+#include "kitten.h"
 
 static void InitScreenCoordinates(RasterizerVertex& vtx) {
     struct {
@@ -267,19 +269,28 @@ void Rasterizer::ProcessTriangle(
             Vec4<uint8_t> primary_color{
                 static_cast<uint8_t>(round(
                     GetInterpolatedAttribute(v0.color.r(), v1.color.r(), v2.color.r()).ToFloat32() *
-                    255)),
+                    64)),
                 static_cast<uint8_t>(round(
                     GetInterpolatedAttribute(v0.color.g(), v1.color.g(), v2.color.g()).ToFloat32() *
-                    255)),
+                    64)),
                 static_cast<uint8_t>(round(
                     GetInterpolatedAttribute(v0.color.b(), v1.color.b(), v2.color.b()).ToFloat32() *
-                    255)),
+                    64)),
                 static_cast<uint8_t>(round(
                     GetInterpolatedAttribute(v0.color.a(), v1.color.a(), v2.color.a()).ToFloat32() *
-                    255)),
+                    64)),
             };
 
-            frontend.DrawPixel(x >> 4, y >> 4, primary_color.r(), primary_color.g(), primary_color.b());
+            // These need eventually be moved into Fragment Shader
+            Texturing::TextureInfo textureInfo;
+	        textureInfo.width = 64;
+	        textureInfo.height = 64;
+	        textureInfo.stride = 8 * 8 * 4 * 8;
+	        textureInfo.format = Texturing::RGBA8;
+            Vec4<uint8_t> color = Texturing::LookupTexture(kitten_raw + 4,
+					primary_color.x, primary_color.y, textureInfo);
+
+            frontend.DrawPixel(x >> 4, y >> 4, color.r(), color.g(), color.b());
         }
     }
 }

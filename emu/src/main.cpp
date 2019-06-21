@@ -23,7 +23,7 @@
 #include "gpu/rasterizer.h"
 #include "gpu/texturing.h"
 
-#include "kitten.h"
+//#include "kitten.h"
 
 #define Vec4FP24(x, y, z, w) MakeVec(\
 		float24::FromFloat32(x),\
@@ -37,21 +37,22 @@ int main(int argc, char *argv[]) {
 	//Frontend::Init();
 	auto &frontend = singleton<Frontend>();
 
-	/*constexpr int VERTEX_COUNT = 4;
+	constexpr int VERTEX_COUNT = 4;
 	Shader::OutputVertex vertex[VERTEX_COUNT];
 
 	// Left lower corner
+	// color is reused as texcoord
 	vertex[0].pos = Vec4FP24(100.0f, 220.0f, 0.5f, 1.0f);
-	vertex[0].color = Vec4FP24(1.0f, 0.0f, 0.0f, 1.0f);
+	vertex[0].color = Vec4FP24(0.0f, 1.0f, 0.0f, 1.0f);
 	// Right lower corner
 	vertex[1].pos = Vec4FP24(300.0f, 220.0f, 0.5f, 1.0f);
 	vertex[1].color = Vec4FP24(1.0f, 1.0f, 0.0f, 1.0f);
 	// Right upper corner
 	vertex[2].pos = Vec4FP24(300.0f, 20.0f, 0.5f, 1.0f);
-	vertex[2].color = Vec4FP24(0.0f, 1.0f, 1.0f, 1.0f);
+	vertex[2].color = Vec4FP24(1.0f, 0.0f, 0.0f, 1.0f);
 	// Left upper corner
 	vertex[3].pos = Vec4FP24(100.0f, 20.0f, 0.5f, 1.0f);
-	vertex[3].color = Vec4FP24(0.0f, 0.0f, 1.0f, 1.0f);
+	vertex[3].color = Vec4FP24(0.0f, 0.0f, 0.0f, 1.0f);
 	
 	Shader::Uniforms uniform;
 	// Projection Matrix
@@ -92,8 +93,9 @@ int main(int argc, char *argv[]) {
 	Rasterizer rasterizer;
 
 	rasterizer.AddTriangle(vertex[0], vertex[1], vertex[2]);
-	rasterizer.AddTriangle(vertex[2], vertex[3], vertex[0]);*/
+	rasterizer.AddTriangle(vertex[2], vertex[3], vertex[0]);
 	
+	/*
 	// Fun with texture
 	Texturing::TextureInfo textureInfo;
 	textureInfo.width = 64;
@@ -110,6 +112,7 @@ int main(int argc, char *argv[]) {
 			frontend.DrawPixel(x * 2, y * 2 + 1, color.r(), color.g(), color.b());
 			frontend.DrawPixel(x * 2 + 1, y * 2 + 1, color.r(), color.g(), color.b());
 		}
+	*/
 
 	frontend.Flip();
 
