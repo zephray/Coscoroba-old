@@ -23,6 +23,36 @@
 #include "texturing.h"
 #include "kitten.h"
 
+struct ClippingEdge {
+public:
+    ClippingEdge(Vec4<float24> coeffs, Vec4<float24> bias = 
+            Vec4<float24>(float24::FromFloat32(0), float24::FromFloat32(0),
+            float24::FromFloat32(0), float24::FromFloat32(0)))
+        : coeffs(coeffs), bias(bias) {}
+
+    bool IsInside(const RasterizerVertex& vertex) const {
+        return Dot(vertex.pos + bias, coeffs) >= float24::FromFloat32(0);
+    }
+
+    bool IsOutSide(const RasterizerVertex& vertex) const {
+        return !IsInside(vertex);
+    }
+
+    RasterizerVertex GetIntersection(const RasterizerVertex& v0, 
+            const RasterizerVertex& v1) const {
+        float24 dp = Dot(v0.pos + bias, coeffs);
+        float24 dp_prev = Dot(v1.pos + bias, coeffs);
+        float24 factor = dp_prev / (dp_prev - dp);
+
+        return RasterizerVertex::Lerp(factor, v0, v1);
+    }
+
+private:
+    float24 pos;
+    Vec4<float24> coeffs;
+    Vec4<float24> bias;
+};
+
 static void InitScreenCoordinates(RasterizerVertex& vtx) {
     struct {
         float24 halfsize_x;
@@ -61,26 +91,87 @@ void Rasterizer::AddTriangle(
             const Shader::OutputVertex& v1,
             const Shader::OutputVertex& v2) {
     
-    RasterizerVertex vtx0(v0);
-    RasterizerVertex vtx1(v1);
-    RasterizerVertex vtx2(v2);
+    // Clipping a planar n-gon against a plane will remove at least 1 vertex and introduces 2 at
+    // the new edge (or less in degenerate cases). As such, we can say that each clipping plane
+    // introduces at most 1 new vertex to the polygon. Since we start with a triangle and have a
+    // fixed 6 clipping planes, the maximum number of vertices of the clipped polygon is 3 + 6 = 9.
+    static const std::size_t MAX_VERTICES = 9;
+    std::vector<Shader::OutputVertex> buffer_a = {v0, v1, v2};
+    std::vector<Shader::OutputVertex> buffer_b;
 
-    InitScreenCoordinates(vtx0);
-    InitScreenCoordinates(vtx1);
-    InitScreenCoordinates(vtx2);
+    auto* output_list = &buffer_a;
+    auto* input_list = &buffer_b;
 
-    printf(
-            "Triangle at position (%.3f, %.3f, %.3f, %.3f), "
-            "(%.3f, %.3f, %.3f, %.3f), (%.3f, %.3f, %.3f, %.3f) and "
-            "screen position (%.2f, %.2f, %.2f), (%.2f, %.2f, %.2f), (%.2f, %.2f, %.2f)\n",
-            vtx0.pos.x.ToFloat32(), vtx0.pos.y.ToFloat32(), vtx0.pos.z.ToFloat32(), vtx0.pos.w.ToFloat32(), 
-            vtx1.pos.x.ToFloat32(), vtx1.pos.y.ToFloat32(), vtx1.pos.z.ToFloat32(), vtx1.pos.w.ToFloat32(),
-            vtx2.pos.x.ToFloat32(), vtx2.pos.y.ToFloat32(), vtx2.pos.z.ToFloat32(), vtx2.pos.w.ToFloat32(), 
-            vtx0.screen_position.x.ToFloat32(), vtx0.screen_position.y.ToFloat32(), vtx0.screen_position.z.ToFloat32(), 
-            vtx1.screen_position.x.ToFloat32(), vtx1.screen_position.y.ToFloat32(), vtx1.screen_position.z.ToFloat32(),
-            vtx2.screen_position.x.ToFloat32(), vtx2.screen_position.y.ToFloat32(), vtx2.screen_position.z.ToFloat32());
+    // NOTE: We clip against a w=epsilon plane to guarantee that the output has a positive w value.
+    // TODO: Not sure if this is a valid approach. Also should probably instead use the smallest
+    //       epsilon possible within float24 accuracy.
+    static const float24 EPSILON = float24::FromFloat32(0.00001f);
+    static const float24 f0 = float24::FromFloat32(0.0);
+    static const float24 f1 = float24::FromFloat32(1.0);
+    static const std::array<ClippingEdge, 7> clipping_edges = {{
+        {MakeVec(-f1, f0, f0, f1)}, // x = +w
+        {MakeVec(f1, f0, f0, f1)},  // x = -w
+        {MakeVec(f0, -f1, f0, f1)}, // y = +w
+        {MakeVec(f0, f1, f0, f1)},  // y = -w
+        {MakeVec(f0, f0, -f1, f0)}, // z =  0
+        {MakeVec(f0, f0, f1, f1)},  // z = -w
+        {MakeVec(f0, f0, f0, f1),
+         Vec4<float24>(f0, f0, f0, EPSILON)}, // w = EPSILON
+    }};
 
-    Rasterizer::ProcessTriangle(vtx0, vtx1, vtx2);
+    // Simple implementation of the Sutherland-Hodgman clipping algorithm.
+    // TODO: Make this less inefficient (currently lots of useless buffering overhead happens here)
+    auto Clip = [&](const ClippingEdge& edge) {
+        std::swap(input_list, output_list);
+        output_list->clear();
+
+        const Shader::OutputVertex* reference_vertex = &input_list->back();
+
+        for (const auto& vertex : *input_list) {
+            // NOTE: This algorithm changes vertex order in some cases!
+            if (edge.IsInside(vertex)) {
+                if (edge.IsOutSide(*reference_vertex)) {
+                    output_list->push_back(edge.GetIntersection(vertex, *reference_vertex));
+                }
+
+                output_list->push_back(vertex);
+            } else if (edge.IsInside(*reference_vertex)) {
+                output_list->push_back(edge.GetIntersection(vertex, *reference_vertex));
+            }
+            reference_vertex = &vertex;
+        }
+    };
+
+    for (auto edge : clipping_edges) {
+        Clip(edge);
+
+        // Need to have at least a full triangle to continue...
+        if (output_list->size() < 3)
+            return;
+    }
+
+    for (std::size_t i = 0; i < output_list->size() - 2; i++) {
+        RasterizerVertex vtx0((*output_list)[0]);
+        RasterizerVertex vtx1((*output_list)[i + 1]);
+        RasterizerVertex vtx2((*output_list)[i + 2]);
+
+        InitScreenCoordinates(vtx0);
+        InitScreenCoordinates(vtx1);
+        InitScreenCoordinates(vtx2);
+
+        /*printf(
+                "Triangle at position (%.3f, %.3f, %.3f, %.3f), "
+                "(%.3f, %.3f, %.3f, %.3f), (%.3f, %.3f, %.3f, %.3f) and "
+                "screen position (%.2f, %.2f, %.2f), (%.2f, %.2f, %.2f), (%.2f, %.2f, %.2f)\n",
+                vtx0.pos.x.ToFloat32(), vtx0.pos.y.ToFloat32(), vtx0.pos.z.ToFloat32(), vtx0.pos.w.ToFloat32(), 
+                vtx1.pos.x.ToFloat32(), vtx1.pos.y.ToFloat32(), vtx1.pos.z.ToFloat32(), vtx1.pos.w.ToFloat32(),
+                vtx2.pos.x.ToFloat32(), vtx2.pos.y.ToFloat32(), vtx2.pos.z.ToFloat32(), vtx2.pos.w.ToFloat32(), 
+                vtx0.screen_position.x.ToFloat32(), vtx0.screen_position.y.ToFloat32(), vtx0.screen_position.z.ToFloat32(), 
+                vtx1.screen_position.x.ToFloat32(), vtx1.screen_position.y.ToFloat32(), vtx1.screen_position.z.ToFloat32(),
+                vtx2.screen_position.x.ToFloat32(), vtx2.screen_position.y.ToFloat32(), vtx2.screen_position.z.ToFloat32());*/
+
+        Rasterizer::ProcessTriangle(vtx0, vtx1, vtx2);
+    }
 }
 
 

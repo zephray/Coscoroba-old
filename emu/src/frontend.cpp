@@ -34,6 +34,8 @@ Frontend::Frontend() {
         //LOG_CRITICAL(Frontend, "Failed to create window! Exiting...");
         exit(1);
     }
+
+    last_tick = SDL_GetTicks();
 }
 
 Frontend::~Frontend() {
@@ -56,6 +58,10 @@ bool Frontend::PollEvent() {
     return result;
 }
 
+void Frontend::Clear() {
+    SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
+}
+
 void Frontend::DrawPixel(int x, int y, int r, int g, int b) {
     uint32_t *buffer = (uint32_t *)screen->pixels;
     // Gamma correction
@@ -73,3 +79,9 @@ void Frontend::Flip() {
     SDL_Flip(screen);
 }
 
+void Frontend::Wait() {
+    while (SDL_GetTicks() - last_tick < 16) {
+        SDL_Delay(1);
+    }
+    last_tick = SDL_GetTicks();
+}

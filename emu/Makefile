@@ -1,5 +1,5 @@
-CXX		:= g++
-C_FLAGS := -Wall -Wextra -std=gnu++17
+CXX	:= g++
+C_FLAGS := -O1 -Wall -Wextra -std=gnu++17
 
 BINDIR	:= bin
 OBJDIR	:= obj

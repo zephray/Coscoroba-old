@@ -36,10 +36,12 @@ public:
     ~Frontend();
     
     bool PollEvent();
-
+    void Clear();
     void DrawPixel(int x, int y, int r, int g, int b);
     void Flip();
+    void Wait();
 
 private:
     SDL_Surface *screen;
+    uint32_t last_tick;
 };
